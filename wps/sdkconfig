@@ -123,6 +123,18 @@ CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
 
 #
+# Connection Settings
+#
+CONFIG_CONNECT_WIFI=y
+CONFIG_WIFI_SSID="myssid"
+CONFIG_WIFI_PASSWORD="mypassword"
+CONFIG_IPV4=y
+CONFIG_IPV4_ADDR="192.168.0.165"
+CONFIG_PORT=3333
+CONFIG_SOCKET_IP_INPUT_STRING=y
+# end of Connection Settings
+
+#
 # Compiler options
 #
 CONFIG_COMPILER_OPTIMIZATION_DEFAULT=y

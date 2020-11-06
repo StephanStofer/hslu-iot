@@ -11,6 +11,7 @@
 #include "driver/gpio.h"
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
+#include "tcp_client.c"
 
 #define DEFAULT_VREF    1100        //Use adc2_vref_to_gpio() to obtain a better estimate
 #define NO_OF_SAMPLES   64          //Multisampling
@@ -100,7 +101,10 @@ void app_main(void)
         adc_reading /= NO_OF_SAMPLES;
         //Convert adc_reading to voltage in mV
         uint32_t voltage = esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
-        printf("Raw: %d\tVoltage: %dmV\n", adc_reading, voltage);
+
+//        char *msgOut;
+//        asprintf(&msgOut, "Raw: %d\tVoltage: %dmV\n", adc_reading, voltage);
+        send_data("myMessage");
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }

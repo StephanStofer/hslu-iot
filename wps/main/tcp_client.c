@@ -1,11 +1,7 @@
-/* BSD Socket API Example
+//
+// Created by Stephan Stofer on 06.11.20.
+//
 
-   This code is in the Public Domain (or CC0 licensed, at your option.)
-
-   Unless required by applicable law or agreed to in writing, this
-   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-   CONDITIONS OF ANY KIND, either express or implied.
-*/
 #include <string.h>
 #include <sys/param.h>
 #include "freertos/FreeRTOS.h"
@@ -39,7 +35,6 @@ static const char *payload = "some message";
 
 static void tcp_client_task(void *pvParameters)
 {
-    char rx_buffer[128];
     char host_ip[] = HOST_IP_ADDR;
     int addr_family = 0;
     int ip_protocol = 0;
@@ -67,33 +62,18 @@ static void tcp_client_task(void *pvParameters)
         }
         ESP_LOGI(TAG, "Successfully connected");
 
-        while (1) {
-            int err = send(sock, payload, strlen(payload), 0);
-            if (err < 0) {
-                ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
-                break;
-            }
-
-            int len = recv(sock, rx_buffer, sizeof(rx_buffer) - 1, 0);
-            // Error occurred during receiving
-            if (len < 0) {
-                ESP_LOGE(TAG, "recv failed: errno %d", errno);
-                break;
-            }
-                // Data received
-            else {
-                rx_buffer[len] = 0; // Null-terminate whatever we received and treat like a string
-                ESP_LOGI(TAG, "Received %d bytes from %s:", len, host_ip);
-                ESP_LOGI(TAG, "%s", rx_buffer);
-            }
-
-            vTaskDelay(2000 / portTICK_PERIOD_MS);
-        }
-
-        if (sock != -1) {
-            ESP_LOGE(TAG, "Shutting down socket and restarting...");
+        err = send(sock, payload, strlen(payload), 0);
+        if (err == 0) {
+            ESP_LOGI(TAG, "Successfully sent payload: %d", err);
+            ESP_LOGI(TAG, "Shutting down socket and restarting...");
             shutdown(sock, 0);
             close(sock);
+            break;
+        }
+
+        if (err < 0) {
+            ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
+            break;
         }
     }
     vTaskDelete(NULL);
@@ -101,6 +81,7 @@ static void tcp_client_task(void *pvParameters)
 
 static void send_data(char data[]){
     payload = data;
+    ESP_LOGI(TAG, "Got data: %s", data);
 
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());

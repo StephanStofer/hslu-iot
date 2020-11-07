@@ -188,3 +188,23 @@ static void wifi_stop(void)
     s_esp_netif = NULL;
 }
 #endif // CONFIG_EXAMPLE_CONNECT_WIFI
+
+esp_netif_t *get_netif(void)
+{
+    return s_esp_netif;
+}
+
+esp_netif_t *get_netif_from_desc(const char *desc)
+{
+    esp_netif_t *netif = NULL;
+    char *expected_desc;
+    asprintf(&expected_desc, "%s: %s", TAG, desc);
+    while ((netif = esp_netif_next(netif)) != NULL) {
+        if (strcmp(esp_netif_get_desc(netif), expected_desc) == 0) {
+            free(expected_desc);
+            return netif;
+        }
+    }
+    free(expected_desc);
+    return netif;
+}

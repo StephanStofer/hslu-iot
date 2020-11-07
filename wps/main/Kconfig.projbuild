@@ -1,0 +1,71 @@
+menu "Connection Settings"
+    choice WIFI_SETTINGS
+        prompt "WiFi Settings"
+        help
+            Choose your network the esp is connecting to..
+
+        config CONNECT_WIFI
+            bool "connect using WiFi interface"
+            default y
+            help
+                Protocol can use Wi-Fi to connect to the network.
+                Choose this option to connect with WiFi
+
+
+        if CONNECT_WIFI
+            config WIFI_SSID
+                string "WiFi SSID"
+                default "myssid"
+                help
+                    SSID (network name) for the example to connect to.
+
+            config WIFI_PASSWORD
+                string "WiFi Password"
+                default "mypassword"
+                help
+                    WiFi password (WPA or WPA2) to use.
+                    Can be left blank if the network has no security set.
+        endif
+
+    endchoice
+
+    choice SERVER_SETTINGS
+        prompt "Server Address"
+        help
+            Set IP-Address and Port data will be sent to.
+
+        config IPV4
+            bool "IPV4"
+            default y
+            help
+                At the moment only IPV4 is supported.
+
+        config IPV4_ADDR
+            string "IPV4 Address"
+            default "192.168.0.165"
+            depends on IPV4
+            help
+                The esp will connect to this IPV4 address.
+
+        config PORT
+            int "Port"
+            range 0 65535
+            default 3333
+            help
+                The remote port to which the client will connect to.
+
+        choice SOCKET_IP_INPUT
+            prompt "Socket source"
+            default SOCKET_IP_INPUT_STRING
+            help
+                Selects the input source of the IP.
+
+            config SOCKET_IP_INPUT_STRING
+                bool "From string"
+
+
+        endchoice
+
+    endchoice
+
+endmenu

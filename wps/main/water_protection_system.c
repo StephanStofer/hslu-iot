@@ -11,6 +11,7 @@
 #include "driver/gpio.h"
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
+#include "tcp_client.c"
 
 #define DEFAULT_VREF    1100        //Use adc2_vref_to_gpio() to obtain a better estimate
 #define NO_OF_SAMPLES   64          //Multisampling
@@ -25,6 +26,8 @@ static const adc_bits_width_t width = ADC_WIDTH_BIT_13;
 #endif
 static const adc_atten_t atten = ADC_ATTEN_DB_0;
 static const adc_unit_t unit = ADC_UNIT_1;
+static const char *APPTAG = "WPS";
+
 
 
 static void check_efuse(void)
@@ -100,7 +103,11 @@ void app_main(void)
         adc_reading /= NO_OF_SAMPLES;
         //Convert adc_reading to voltage in mV
         uint32_t voltage = esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
-        printf("Raw: %d\tVoltage: %dmV\n", adc_reading, voltage);
+        ESP_LOGI(APPTAG, "Raw: %d\tVoltage: %dmV\n", adc_reading, voltage);
+        char *data_to_send;
+        asprintf(&data_to_send, "Raw: %d\tVoltage: %dmV\n", adc_reading, voltage);
+        send_data("message from wps");
+        free(data_to_send);
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }

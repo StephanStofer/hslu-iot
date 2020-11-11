@@ -105,9 +105,9 @@ void app_main(void)
         uint32_t voltage = esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
         ESP_LOGI(APPTAG, "Raw: %d\tVoltage: %dmV\n", adc_reading, voltage);
         char *data_to_send;
-        asprintf(&data_to_send, "Raw: %d\tVoltage: %dmV\n", adc_reading, voltage);
-        send_data("message from wps");
+        asprintf(&data_to_send, "%s - Raw: %d\tVoltage: %dmV\n", APPTAG, adc_reading, voltage);
+        send_data(APPTAG,data_to_send);
         free(data_to_send);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        vTaskDelay(pdMS_TO_TICKS(10000));
     }
 }

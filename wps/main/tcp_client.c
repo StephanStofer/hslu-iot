@@ -31,10 +31,7 @@ static const char *TAG = "TCP-Client";
 static const char *payload = "some message";
 
 
-
-
-static void tcp_client_task(void *pvParameters)
-{
+static void tcp_client_task(void *pvParameters) {
     char host_ip[] = HOST_IP_ADDR;
     int addr_family = 0;
     int ip_protocol = 0;
@@ -48,14 +45,14 @@ static void tcp_client_task(void *pvParameters)
         addr_family = AF_INET;
         ip_protocol = IPPROTO_IP;
 #endif
-        int sock =  socket(addr_family, SOCK_STREAM, ip_protocol);
+        int sock = socket(addr_family, SOCK_STREAM, ip_protocol);
         if (sock < 0) {
             ESP_LOGE(TAG, "Unable to create socket: errno %d", errno);
             break;
         }
         ESP_LOGI(TAG, "Socket created, connecting to %s:%d", host_ip, PORT);
 
-        int err = connect(sock, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr_in6));
+        int err = connect(sock, (struct sockaddr *) &dest_addr, sizeof(struct sockaddr_in6));
         if (err != 0) {
             ESP_LOGE(TAG, "Socket unable to connect: errno %d", errno);
             break;
@@ -63,25 +60,28 @@ static void tcp_client_task(void *pvParameters)
         ESP_LOGI(TAG, "Successfully connected");
 
         err = send(sock, payload, strlen(payload), 0);
-        if (err == 0) {
-            ESP_LOGI(TAG, "Successfully sent payload: %d", err);
-            ESP_LOGI(TAG, "Shutting down socket and restarting...");
+
+        if (err == 1) {
+            ESP_LOGI(TAG, "Successfully sent payload");
+            ESP_LOGI(TAG, "Shutting down socket and closing connection...");
             shutdown(sock, 0);
             close(sock);
             break;
         }
 
-        if (err < 0) {
-            ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
-            break;
-        }
+        ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
+        break;
     }
+
+    ESP_ERROR_CHECK(disconnect_wifi());
+    ESP_ERROR_CHECK(esp_event_loop_delete_default());
+    ESP_LOGI(TAG, "Disconnect WiFi, delete Event-Loop and Task");
     vTaskDelete(NULL);
 }
 
-static void send_data(char data[]){
+static void send_data(const char sender[], const char data[]) {
     payload = data;
-    ESP_LOGI(TAG, "Got data: %s", data);
+    ESP_LOGI(TAG, "Got data from: %s, sending.. %s", sender, payload);
 
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
@@ -89,5 +89,4 @@ static void send_data(char data[]){
     ESP_ERROR_CHECK(connect_to_wifi());
 
     xTaskCreate(tcp_client_task, TAG, 4096, NULL, 5, NULL);
-
 }

@@ -1,0 +1,18 @@
+<div class="container my-container">
+    <div class="row my-row"> 
+        <div class="col-md-12 col-sm-1 my-col">
+            <div style="display: block">
+                <canvas mdbChart
+                    [chartType]="chartType"
+                    [datasets]="chartDatasets"
+                    [labels]="chartLabels"
+                    [colors]="chartColors"
+                    [options]="chartOptions"
+                    [legend]="true"
+                    (chartHover)="chartHovered($event)"
+                    (chartClick)="chartClicked($event)">
+                </canvas>
+            </div>
+        </div>
+    </div>
+</div>

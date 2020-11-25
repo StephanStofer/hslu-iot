@@ -7,15 +7,13 @@
 #include "sdkconfig.h"
 #include "esp_event.h"
 #include "esp_wifi.h"
+#include "esp_err.h"
 #include "esp_wifi_default.h"
 #include "esp_log.h"
 #include "esp_netif.h"
-#include "driver/gpio.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "freertos/event_groups.h"
 #include "lwip/err.h"
-#include "lwip/sys.h"
 
 #define DO_CONNECT CONFIG_CONNECT_WIFI
 #if CONFIG_CONNECT_WIFI

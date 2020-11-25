@@ -2,16 +2,10 @@
 // Created by Stephan Stofer on 06.11.20.
 //
 
-#ifndef WATER_PROTECTION_SYSTEM_WIFI_H
-#define WATER_PROTECTION_SYSTEM_WIFI_H
-
-#endif //WATER_PROTECTION_SYSTEM_WIFI_H
 #include "esp_err.h"
 #include "esp_netif.h"
 
-#ifdef CONFIG_CONNECT_WIFI
 #define INTERFACE get_netif()
-#endif
 
 /**
  * @brief Configure Wi-Fi, connect, wait for IP

@@ -95,9 +95,9 @@ void app_main(void)
 
 	//Configure ADC
 	adc1_config_width(width);
+	adc1_config_channel_atten(channel_water_0, atten);
 	adc1_config_channel_atten(channel_piezo_0, atten);
 	adc1_config_channel_atten(channel_piezo_1, atten);
-	adc1_config_channel_atten(channel_water_0, atten);
 	
 	//Characterize ADC
 	adc_chars = calloc(1, sizeof(esp_adc_cal_characteristics_t));
@@ -109,23 +109,24 @@ void app_main(void)
 	while(true)
 	{
 		uint32_t pos = 0;
+		uint32_t raw = 0;
 		memcpy(data_to_send, "{\"water_0\":", 11); pos += 11;
 		//Multisampling
 		uint32_t adc_reading = 0;
 		for (uint32_t i = 0; i < NO_OF_SAMPLES; ++i) {
-			adc_reading += adc1_get_raw((adc1_channel_t)channel_piezo_0);
+			adc_reading += adc1_get_raw((adc1_channel_t)channel_water_0);
 		}
 		adc_reading /= NO_OF_SAMPLES;
 		pos += intCharCpy(adc_reading, data_to_send+pos);
 		memcpy(data_to_send+pos, "\"piezo_0\":[", 11); pos += 11;
 		for (uint32_t i = 0; i < 1000; ++i) {
-			uint32_t raw = adc1_get_raw((adc1_channel_t)channel_piezo_0);
+			raw = adc1_get_raw((adc1_channel_t)channel_piezo_0);
 			pos += intCharCpy(raw, data_to_send+pos);
 		}
 		--pos;
 		memcpy(data_to_send+pos, "],\"piezo_1\":[", 13); pos += 13;
 		for (uint32_t i = 0; i < 1000; ++i) {
-			uint32_t raw = adc1_get_raw((adc1_channel_t)channel_piezo_0);
+			raw = adc1_get_raw((adc1_channel_t)channel_piezo_1);
 			pos += intCharCpy(raw, data_to_send+pos);
 		}
 		--pos;

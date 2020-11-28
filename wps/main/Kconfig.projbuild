@@ -15,13 +15,13 @@ menu "Connection Settings"
         if CONNECT_WIFI
             config WIFI_SSID
                 string "WiFi SSID"
-                default "myssid"
+                default "ESP32"
                 help
                     SSID (network name) for the example to connect to.
 
             config WIFI_PASSWORD
                 string "WiFi Password"
-                default "mypassword"
+                default "ESP32ESP32"
                 help
                     WiFi password (WPA or WPA2) to use.
                     Can be left blank if the network has no security set.

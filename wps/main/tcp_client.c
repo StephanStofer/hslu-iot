@@ -28,7 +28,7 @@
 #define PORT CONFIG_PORT
 
 static const char *TAG = "TCP-Client";
-static const char *payload = "some message";
+static const char payload = "some message";
 
 
 static void tcp_client_task(void *pvParameters) {

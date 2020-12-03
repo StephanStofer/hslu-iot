@@ -1,5 +1,6 @@
 //
 // Created by Stephan Stofer on 06.11.20.
+// Updated 2.12.20 inspired by https://github.com/espressif/esp-idf/blob/master/examples/protocols/sockets/tcp_client/main/tcp_client.c
 //
 
 #include <string.h>
@@ -19,12 +20,7 @@
 #include "lwip/sockets.h"
 
 
-#if defined(CONFIG_IPV4)
 #define HOST_IP_ADDR CONFIG_IPV4_ADDR
-#else
-#define HOST_IP_ADDR ""
-#endif
-
 #define PORT CONFIG_PORT
 
 static const char *TAG = "TCP-Client";
@@ -61,7 +57,7 @@ static void tcp_client_task(void *pvParameters) {
 
         err = send(sock, payload, strlen(payload), 0);
 
-        if (err == 1) {
+        if (err >= 0) {
             ESP_LOGI(TAG, "Successfully sent payload");
             ESP_LOGI(TAG, "Shutting down socket and closing connection...");
             shutdown(sock, 0);

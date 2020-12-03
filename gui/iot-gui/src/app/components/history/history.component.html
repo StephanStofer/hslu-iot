@@ -1,3 +1,37 @@
-<p>history works!</p>
-
-<span *ngIf="true">Value: {{ data.name }}</span>
+<div class="container my-container">
+    <div class="row my-row"> 
+        <div class="col-md-12">         
+          <div class="table-responsive">
+            <table mdbTable #tableEl="mdbTable" class="z-depth-1">
+              <thead>
+                <tr>
+                  <th *ngFor="let head of headElements; let i = index" scope="col">{{head}}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let data of data$; let i = index">
+                  <!--<th *ngIf="i+1 >= mdbTablePagination.firstItemIndex && i < mdbTablePagination.lastItemIndex" scope="row">{{data.timestamp}}</th>
+                  <td *ngIf="i+1 >= mdbTablePagination.firstItemIndex && i < mdbTablePagination.lastItemIndex" class="red-text">{{data.vibration}}</td>
+                  <td *ngIf="i+1 >= mdbTablePagination.firstItemIndex && i < mdbTablePagination.lastItemIndex">{{data.humidity}}</td>
+                  -->
+                  <th scope="row">{{data.timestamp}}</th>
+                  <td class="red-text">{{data.water_0}}</td>
+                  <td>{{data.piezo_0}}</td>
+                  <td>{{data.piezo_1}}</td>
+                </tr>
+              </tbody>
+              <!--
+              <tfoot class="grey lighten-5 w-100">
+                <tr>
+                  <td colspan="4">
+                    <mdb-table-pagination [tableEl]="tableEl" [searchDataSource]="data$"></mdb-table-pagination>
+                  </td>
+                </tr>
+                </tfoot>
+              -->
+            </table>
+          </div>
+          <button (click)="log()">Click Me</button>
+        </div>
+    </div>
+  </div>

@@ -13,10 +13,13 @@
     <!-- /#sidebar-wrapper -->
     <!-- Page Content -->
     <div id="page-content-wrapper">
-      <button class="btn btn-primary" id="menu-toggle">Toggle Menu</button>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>    
+      <div container>
+        <nav class="navbar navbar-light navbar-expand-md">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="menu-toggle">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+        </nav>
+      </div>
 
     <router-outlet></router-outlet>
     </div>

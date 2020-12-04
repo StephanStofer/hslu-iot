@@ -33,14 +33,13 @@ static void tcp_client_task(void *pvParameters) {
     int ip_protocol = 0;
 
     while (1) {
-#if defined(CONFIG_IPV4)
         struct sockaddr_in dest_addr;
         dest_addr.sin_addr.s_addr = inet_addr(host_ip);
         dest_addr.sin_family = AF_INET;
         dest_addr.sin_port = htons(PORT);
         addr_family = AF_INET;
         ip_protocol = IPPROTO_IP;
-#endif
+
         int sock = socket(addr_family, SOCK_STREAM, ip_protocol);
         if (sock < 0) {
             ESP_LOGE(TAG, "Unable to create socket: errno %d", errno);
@@ -48,7 +47,7 @@ static void tcp_client_task(void *pvParameters) {
         }
         ESP_LOGI(TAG, "Socket created, connecting to %s:%d", host_ip, PORT);
 
-        int err = connect(sock, (struct sockaddr *) &dest_addr, sizeof(struct sockaddr_in6));
+        int err = connect(sock, (struct sockaddr *) &dest_addr, sizeof(struct sockaddr));
         if (err != 0) {
             ESP_LOGE(TAG, "Socket unable to connect: errno %d", errno);
             break;

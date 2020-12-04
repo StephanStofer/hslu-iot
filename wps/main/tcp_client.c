@@ -54,9 +54,10 @@ static void tcp_client_task(void *pvParameters) {
         }
         ESP_LOGI(TAG, "Successfully connected");
 
-        err = send(sock, payload, strlen(payload), 0);
+        int rc = send(sock, payload, strlen(payload), 0);
+        vTaskDelay(2000 / portTICK_PERIOD_MS);
 
-        if (err >= 0) {
+        if (rc >= 0) {
             ESP_LOGI(TAG, "Successfully sent payload");
             ESP_LOGI(TAG, "Shutting down socket and closing connection...");
             shutdown(sock, 0);

@@ -34,14 +34,20 @@ static const char *APPTAG = "WPS";
 
 uint32_t intCharCpy(uint32_t num, char* str) 
 {
-	uint32_t i = 0; 
+	uint32_t i = 0;
+	char moduloNum;
+	bool gotNumber = false;
 	if (num == 0)
 	{
 		str[i++] = '0';
 	} else {
 		while (num != 0)
-		{ 
-			str[i++] = num % 10 + '0';
+		{
+			moduloNum = num % 10;
+			if (moduloNum > 0 || gotNumber) {
+				gotNumber = true;
+				str[i++] = moduloNum + '0';
+			}
 			num /= 10;
 		}
 	}

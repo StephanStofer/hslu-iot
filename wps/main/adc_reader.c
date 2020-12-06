@@ -122,17 +122,17 @@ void app_main(void)
 			adc_reading += adc1_get_raw((adc1_channel_t)channel_water_0);
 		}
 		adc_reading /= NO_OF_SAMPLES;
-		pos += intCharCpy(adc_reading, data_to_send+pos);
+		pos += int_Char_Cpy(adc_reading, data_to_send+pos);
 		memcpy(data_to_send+pos, "\"piezo_0\":[", 11); pos += 11;
 		for (uint32_t i = 0; i < 1000; ++i) {
 			raw = adc1_get_raw((adc1_channel_t)channel_piezo_0);
-			pos += intCharCpy(raw, data_to_send+pos);
+			pos += int_Char_Cpy(raw, data_to_send+pos);
 		}
 		--pos;
 		memcpy(data_to_send+pos, "],\"piezo_1\":[", 13); pos += 13;
 		for (uint32_t i = 0; i < 1000; ++i) {
 			raw = adc1_get_raw((adc1_channel_t)channel_piezo_1);
-			pos += intCharCpy(raw, data_to_send+pos);
+			pos += int_Char_Cpy(raw, data_to_send+pos);
 		}
 		--pos;
 		memcpy(data_to_send+pos, "]}\0", 3); pos += 3;

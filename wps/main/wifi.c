@@ -71,8 +71,6 @@ esp_err_t disconnect_wifi(void)
     return ESP_OK;
 }
 
-#ifdef CONFIG_CONNECT_WIFI
-
 static void on_wifi_disconnect(void *arg, esp_event_base_t event_base,
                                int32_t event_id, void *event_data)
 {
@@ -133,7 +131,6 @@ static void stop(void)
     esp_netif_destroy(s_esp_netif);
     s_esp_netif = NULL;
 }
-#endif // CONFIG_CONNECT_WIFI
 
 esp_netif_t *get_netif(void)
 {

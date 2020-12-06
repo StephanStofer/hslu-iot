@@ -1,9 +1,8 @@
-/* ADC1 Example
-   This example code is in the Public Domain (or CC0 licensed, at your option.)
-   Unless required by applicable law or agreed to in writing, this
-   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-   CONDITIONS OF ANY KIND, either express or implied.
-*/
+//
+// Created by Stephan Stofer on 06.11.20.
+// Updated 2.12.20 inspired by https://github.com/espressif/esp-idf/blob/release/v4.1/examples/peripherals/adc/main/adc1_example_main.c
+//
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "freertos/FreeRTOS.h"
@@ -32,7 +31,7 @@ static const adc_atten_t atten = ADC_ATTEN_DB_0;
 static const char *APPTAG = "WPS";
 
 
-uint32_t intCharCpy(uint32_t num, char* str) 
+uint32_t int_Char_Cpy(uint32_t num, char* str)
 {
 	uint32_t i = 0;
 	char moduloNum;
@@ -77,7 +76,7 @@ static void check_efuse(void)
 		printf("Cannot retrieve eFuse Two Point calibration values. Default calibration values will be used.\n");
 	}
 #else
-#error "This example is configured for ESP32/ESP32S2."
+#error "This application is configured for ESP32/ESP32S2."
 #endif
 }
 

@@ -1,5 +1,6 @@
 //
 // Created by Stephan Stofer on 06.11.20.
+// inspired by https://github.com/espressif/esp-idf/blob/release/v4.1/examples/common_components/protocol_examples_common/connect.c
 //
 
 #include "esp_err.h"

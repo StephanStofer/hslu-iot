@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 import { ChartsModule, WavesModule } from 'angular-bootstrap-md'
 import {BaseChartDirective} from 'angular-bootstrap-md'
 import { Chart } from 'node_modules/chart.js/'
@@ -20,20 +20,33 @@ export class ResultsComponent {
 //    values.push(element.name);
 //})
 
+
   
   // Services
+  
+
+  constructor(private dataService: DataService) {
+    this.chartLabels = this.data$;
+  }
+  
   data$: Data[];
 
-  constructor(private dataService: DataService) {}
-  
-  ngOnInit() {
+  //ngOnInit() {
+  //    return this.dataService.getData()
+  //     .subscribe(data => this.data$ = data);
+  //  }
+
+  ngAfterViewInit() {
       return this.dataService.getData()
        .subscribe(data => this.data$ = data);
     }
 
+    
+  
   humidity: Array<number> = [65, 59, 80, 81, 56, 55, 40];
   vibration: Array<number> = [28, 48, 40, 19, 86, 27, 90];
   time: Array<string> = ['12:00', '12:05', '12:10', '12:15', '12:20', '12:25', '12:30'];
+ 
 
   public chartType: string = 'line';
 
@@ -42,7 +55,9 @@ export class ResultsComponent {
     { data: this.vibration, label: 'Vibration' }
   ];
 
-  public chartLabels: Array<any> = this.time;
+
+  public chartLabels: Array<any>
+  //public chartLabels: Array<any> = Data.timestamp;
 
   public chartColors: Array<any> = [
     {

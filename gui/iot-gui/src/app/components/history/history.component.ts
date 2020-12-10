@@ -15,18 +15,19 @@ export class HistoryComponent implements OnInit/**, AfterViewInit*/ {
 
   @ViewChild(MdbTablePaginationComponent, { static: true }) mdbTablePagination: MdbTablePaginationComponent;
   @ViewChild(MdbTableDirective, { static: true }) mdbTable: MdbTableDirective;
-  headElements = ['Timestamp', 'Feuchtigkeit', 'Vibration 1', 'Vibration 2'];
+  headElements = ['Time', 'Date', 'Feuchtigkeit', 'Vibration 1', 'Vibration 2'];
   
   // Services
   data$: Data[];
 
-  constructor(private dataService: DataService, private logger: LogService, private cdRef: ChangeDetectorRef) {}
+  constructor(private dataService: DataService, private logger: LogService, /**private cdRef: ChangeDetectorRef*/) {}
   
   ngOnInit() {
       return this.dataService.getData()
        .subscribe(data => this.data$ = data);
+       
     }
-
+  
   //ngAfterViewInit() {
   //    this.mdbTablePagination.setMaxVisibleItemsNumberTo(5);
   

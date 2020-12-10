@@ -14,8 +14,9 @@
                   <td *ngIf="i+1 >= mdbTablePagination.firstItemIndex && i < mdbTablePagination.lastItemIndex" class="red-text">{{data.vibration}}</td>
                   <td *ngIf="i+1 >= mdbTablePagination.firstItemIndex && i < mdbTablePagination.lastItemIndex">{{data.humidity}}</td>
                   -->
-                  <th scope="row">{{data.timestamp}}</th>
-                  <td class="red-text">{{data.water_0}}</td>
+                  <th scope="row">{{data.time}}</th>
+                  <th class="red-text">{{data.date}}</th>
+                  <td>{{data.water_0}}</td>
                   <td>{{data.piezo_0}}</td>
                   <td>{{data.piezo_1}}</td>
                 </tr>

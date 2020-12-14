@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using IotGui.Data;
+using IotGui.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using IotGui.Models;
-using IotGui.Data;
+using System.Diagnostics;
 
 namespace IotGui.Controllers
 {
@@ -24,7 +20,8 @@ namespace IotGui.Controllers
         public IActionResult Index()
         {
             var data = _dataService.GetData();
-            return View(data);
+            if (data != null) return View(data);
+            return Problem("Json is empty, come back after filling measurements");
         }
 
         public IActionResult History()

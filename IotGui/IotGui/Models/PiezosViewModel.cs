@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace IotGui.Models
 {
@@ -15,7 +12,7 @@ namespace IotGui.Models
         {
             Piezo1 = p1_diff;
             Piezo2 = p2_diff;
-            for(int i = 0; i <= p1_diff.Count; i++)
+            for (int i = 0; i <= p1_diff.Count; i++)
             {
                 indexPiezo1.Add(i);
             }

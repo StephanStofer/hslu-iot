@@ -1,10 +1,7 @@
 ﻿using IotGui.Models;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace IotGui.Data
 {
@@ -12,11 +9,19 @@ namespace IotGui.Data
     {
         public List<MeasurementViewModel> GetData()
         {
-            using (StreamReader reader = new StreamReader(@"MeasurementsData/example.json"))
+            if (File.Exists(@"MeasurementsData/example.json"))
             {
-                string json = reader.ReadToEnd();
-                var measurements = JsonConvert.DeserializeObject<List<MeasurementViewModel>>(json);
-                return measurements;
+                using (StreamReader reader = new StreamReader(@"MeasurementsData/example.json"))
+                {
+                    string json = reader.ReadToEnd();
+                    var measurements = JsonConvert.DeserializeObject<List<MeasurementViewModel>>(json);
+                    return measurements;
+                }
+            }
+            else
+            {
+                File.Create(@"MeasurementsData/example.json");
+                return null;
             }
         }
     }

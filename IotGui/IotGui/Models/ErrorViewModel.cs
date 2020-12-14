@@ -1,5 +1,3 @@
-using System;
-
 namespace IotGui.Models
 {
     public class ErrorViewModel

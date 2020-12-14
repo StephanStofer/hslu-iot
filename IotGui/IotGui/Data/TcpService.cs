@@ -38,49 +38,51 @@ namespace IotGui.Data
                         {
                             using (NetworkStream stream = client.GetStream())
                             {
-                                Debug.Print($"Typ client started sucesfully on {iPAddress}\nconnection established: {client.Connected} | {client.Available}");
+                                Debug.Print(
+                                    $"Typ client started sucesfully on {iPAddress}\nconnection established: {client.Connected} | {client.Available}");
                                 //while (!stoppingToken.IsCancellationRequested)
                                 //{
-                                    //if (listener.Pending()) break;
-                                    int byteRead = 0;
-                                    byte[] buffer = new byte[20000];
-                                    string jsonString = string.Empty;
-                                    do
-                                    {
-                                        byteRead = stream.Read(buffer, 0, 1000);
-                                        jsonString += Encoding.ASCII.GetString(buffer, 0, byteRead);
-                                    }
-                                    while (byteRead > 0);
+                                //if (listener.Pending()) break;
+                                int byteRead = 0;
+                                byte[] buffer = new byte[20000];
+                                string jsonString = string.Empty;
+                                while ((byteRead = stream.Read(buffer, 0, buffer.Length)) != 0)
+                                {
+                                    jsonString += Encoding.ASCII.GetString(buffer, 0, byteRead);
+                                }
+
                                 //Memory<byte> memory = new Memory<byte>(new byte[1000000]);
                                 //int bytesRead = await stream.ReadAsync(memory, stoppingToken);
                                 ////Debug.Print($"Read bytes {bytesRead}");
                                 //var jsonString = Encoding.UTF8.GetString(memory.ToArray());
                                 if (isValidJson(jsonString))
+                                {
+                                    var measurement = JsonConvert.DeserializeObject<MeasurementViewModel>(jsonString);
+                                    var measurementsJson = _dataService.GetData();
+                                    if (measurement != null)
                                     {
-                                        var measurement = JsonConvert.DeserializeObject<MeasurementViewModel>(jsonString);
-                                        var measurementsJson = _dataService.GetData();
-                                        if (measurement != null)
+                                        if (measurementsJson == null)
                                         {
-                                            if (measurementsJson == null)
-                                            {
-                                                measurementsJson = new List<MeasurementViewModel>();
-                                            }
-                                            measurementsJson.Add(measurement);
-                                            using (StreamWriter file = File.CreateText(@"MeasurementsData/example.json"))
-                                            {
-                                                measurement.date = DateTime.Now.ToShortDateString();
-                                                measurement.time = DateTime.Now.ToLongTimeString();
-                                                measurement.timestamp = DateTime.Now.ToLongDateString();
-                                                JsonSerializer serializer = new JsonSerializer();
-                                                serializer.Serialize(file, measurementsJson);
-                                            }
+                                            measurementsJson = new List<MeasurementViewModel>();
+                                        }
+
+                                        measurementsJson.Add(measurement);
+                                        using (StreamWriter file = File.CreateText(@"MeasurementsData/example.json"))
+                                        {
+                                            measurement.date = DateTime.Now.ToShortDateString();
+                                            measurement.time = DateTime.Now.ToLongTimeString();
+                                            measurement.timestamp = DateTime.Now.ToLongDateString();
+                                            JsonSerializer serializer = new JsonSerializer();
+                                            serializer.Serialize(file, measurementsJson);
                                         }
                                     }
                                 }
                             }
                         }
+
+                        client.Close();
                     }
-                
+                }
             }
             catch (Exception e)
             {

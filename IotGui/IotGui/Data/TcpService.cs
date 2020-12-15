@@ -1,5 +1,6 @@
 ﻿using IotGui.Models;
 using Microsoft.Extensions.Hosting;
+using Net.TcpServer;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -17,6 +18,7 @@ namespace IotGui.Data
     public class TcpService : BackgroundService
     {
         private IDataService _dataService;
+        //private TcpListener serverSocket;
 
         public TcpService(IDataService dataService)
         {
@@ -25,67 +27,66 @@ namespace IotGui.Data
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            IPAddress iPAddress = IPAddress.Parse("0.0.0.0");
-            TcpListener listener = new TcpListener(iPAddress, 3333);
-            listener.Start();
-            try
+            new Thread(() =>
             {
-                while (true)
+                Thread.CurrentThread.IsBackground = true;
+                TcpServer tcpServer = new TcpServer(IPAddress.Any, 3333);
+                while (true && !stoppingToken.IsCancellationRequested)
                 {
-                    using (TcpClient client = await listener.AcceptTcpClientAsync())
+                    string jsonString = string.Empty;
+                    tcpServer.Start(_ =>
                     {
-                        if (client.Connected)
+
+                        _.OnAccept = client =>
                         {
-                            using (NetworkStream stream = client.GetStream())
+                            Debug.WriteLine($"OnAccept: {client}");
+                        };
+                        _.OnReceive = (client, data) =>
+                        {
+                            jsonString += Encoding.UTF8.GetString(data);
+                            Debug.WriteLine($"OnReceive: {client} {Encoding.UTF8.GetString(data)}");
+                        };
+                        _.OnError = (client, ex) =>
+                        {
+                            Debug.WriteLine($"OnError: {client} {ex.Message}");
+                        };
+                        _.OnClose = (client, isCloseByClient) =>
+                        {
+                            Debug.WriteLine($"Result: {jsonString}");
+                            try
                             {
-                                Debug.Print($"Typ client started sucesfully on {iPAddress}\nconnection established: {client.Connected} | {client.Available}");
-                                //while (!stoppingToken.IsCancellationRequested)
-                                //{
-                                    //if (listener.Pending()) break;
-                                    int byteRead = 0;
-                                    byte[] buffer = new byte[20000];
-                                    string jsonString = string.Empty;
-                                    do
+                                var measurement = JsonConvert.DeserializeObject<MeasurementViewModel>(jsonString);
+                                jsonString = string.Empty;
+                                var measurementsJson = _dataService.GetData();
+                                if (measurement != null)
+                                {
+                                    if (measurementsJson == null)
                                     {
-                                        byteRead = stream.Read(buffer, 0, 1000);
-                                        jsonString += Encoding.ASCII.GetString(buffer, 0, byteRead);
+                                        measurementsJson = new List<MeasurementViewModel>();
                                     }
-                                    while (byteRead > 0);
-                                //Memory<byte> memory = new Memory<byte>(new byte[1000000]);
-                                //int bytesRead = await stream.ReadAsync(memory, stoppingToken);
-                                ////Debug.Print($"Read bytes {bytesRead}");
-                                //var jsonString = Encoding.UTF8.GetString(memory.ToArray());
-                                if (isValidJson(jsonString))
+                                    measurementsJson.Add(measurement);
+                                    using (StreamWriter file = File.CreateText(@"MeasurementsData/example.json"))
                                     {
-                                        var measurement = JsonConvert.DeserializeObject<MeasurementViewModel>(jsonString);
-                                        var measurementsJson = _dataService.GetData();
-                                        if (measurement != null)
-                                        {
-                                            if (measurementsJson == null)
-                                            {
-                                                measurementsJson = new List<MeasurementViewModel>();
-                                            }
-                                            measurementsJson.Add(measurement);
-                                            using (StreamWriter file = File.CreateText(@"MeasurementsData/example.json"))
-                                            {
-                                                measurement.date = DateTime.Now.ToShortDateString();
-                                                measurement.time = DateTime.Now.ToLongTimeString();
-                                                measurement.timestamp = DateTime.Now.ToLongDateString();
-                                                JsonSerializer serializer = new JsonSerializer();
-                                                serializer.Serialize(file, measurementsJson);
-                                            }
-                                        }
+                                        measurement.date = DateTime.Now.ToShortDateString();
+                                        measurement.time = DateTime.Now.ToLongTimeString();
+                                        measurement.timestamp = DateTime.Now.ToLongDateString();
+                                        JsonSerializer serializer = new JsonSerializer();
+                                        serializer.Serialize(file, measurementsJson);
                                     }
                                 }
                             }
-                        }
-                    }
-                
-            }
-            catch (Exception e)
-            {
-                Debug.Fail($"Failed to start TCP listener: {e.Message}");
-            }
+                            catch (Exception e)
+                            {
+                                jsonString = string.Empty;
+                                Console.WriteLine("Exception: {0}", e);
+                            }
+                            Debug.WriteLine($"OnClose: {client} {(isCloseByClient ? "by client" : "by server")}");
+                        };
+                    });
+                }
+                Console.ReadKey();
+                tcpServer.Stop();
+            }).Start();
         }
 
         private bool isValidJson(string s)

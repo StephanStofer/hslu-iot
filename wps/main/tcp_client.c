@@ -27,7 +27,7 @@ static const char *TAG = "TCP-Client";
 static const char *payload = "some message";
 
 
-static void tcp_client_task(void *pvParameters) {
+static void tcp_client_task() {
     char host_ip[] = HOST_IP_ADDR;
     int addr_family = 0;
     int ip_protocol = 0;
@@ -55,10 +55,10 @@ static void tcp_client_task(void *pvParameters) {
         ESP_LOGI(TAG, "Successfully connected");
 
         int rc = send(sock, payload, strlen(payload), 0);
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
+        vTaskDelay(pdMS_TO_TICKS(2000));
 
         if (rc >= 0) {
-            ESP_LOGI(TAG, "Successfully sent payload");
+            ESP_LOGI(TAG, "Successfully sent payload: %s", payload);
             ESP_LOGI(TAG, "Shutting down socket and closing connection...");
             shutdown(sock, 0);
             close(sock);
@@ -72,17 +72,17 @@ static void tcp_client_task(void *pvParameters) {
     ESP_ERROR_CHECK(disconnect_wifi());
     ESP_ERROR_CHECK(esp_event_loop_delete_default());
     ESP_LOGI(TAG, "Disconnect WiFi, delete Event-Loop and Task");
-    vTaskDelete(NULL);
+//    vTaskDelete(NULL);
 }
 
 static void send_data(const char sender[], const char data[]) {
     payload = data;
-    ESP_LOGI(TAG, "Got data from: %s, sending.. %s", sender, payload);
+//    ESP_LOGI(TAG, "Got data from: %s, sending.. %s", sender, payload);
 
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     ESP_ERROR_CHECK(connect_to_wifi());
-
-    xTaskCreate(tcp_client_task, TAG, 4096, NULL, 5, NULL);
+    tcp_client_task();
+//    xTaskCreate(tcp_client_task, TAG, 4096, NULL, 5, NULL);
 }

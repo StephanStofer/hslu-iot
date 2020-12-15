@@ -138,8 +138,7 @@ void app_main(void)
 		memcpy(data_to_send+pos, "]}\0", 3); pos += 3;
 		
 		send_data(APPTAG, data_to_send);
-		ESP_LOGI(APPTAG, "%s\n", data_to_send);
-		vTaskDelay(pdMS_TO_TICKS(10000));
+		vTaskDelay(pdMS_TO_TICKS(30000));
 	}
 	free(data_to_send);
 }

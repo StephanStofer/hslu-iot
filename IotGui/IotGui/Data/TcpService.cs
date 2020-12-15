@@ -1,14 +1,14 @@
 ﻿using IotGui.Models;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Net.TcpServer;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,11 +18,16 @@ namespace IotGui.Data
     public class TcpService : BackgroundService
     {
         private IDataService _dataService;
+        private readonly IConfiguration _configuration;
+        private readonly IMailService _mailService;
+
         //private TcpListener serverSocket;
 
-        public TcpService(IDataService dataService)
+        public TcpService(IDataService dataService, IConfiguration configuration, IMailService mailService)
         {
             _dataService = dataService;
+            _configuration = configuration;
+            _mailService = mailService;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -30,7 +35,7 @@ namespace IotGui.Data
             new Thread(() =>
             {
                 Thread.CurrentThread.IsBackground = true;
-                TcpServer tcpServer = new TcpServer(IPAddress.Any, 3333);
+                TcpServer tcpServer = new TcpServer(IPAddress.Parse(_configuration["Host"]), int.Parse(_configuration["Port"]));
                 while (true && !stoppingToken.IsCancellationRequested)
                 {
                     string jsonString = string.Empty;
@@ -58,6 +63,18 @@ namespace IotGui.Data
                                 var measurement = JsonConvert.DeserializeObject<MeasurementViewModel>(jsonString);
                                 jsonString = string.Empty;
                                 var measurementsJson = _dataService.GetData();
+                                if(measurement.water_0 > int.Parse(_configuration["HumidityAlert"]))
+                                {
+                                    if(measurementsJson.TakeLast(3).All(mes => mes.water_0 > int.Parse(_configuration["HumidityAlert"])))
+                                    {
+                                        _mailService.SendAlertMail("water_0", measurement.water_0.ToString());
+                                    }
+                                }
+                                if (calcDiff(measurement.piezo_0).Average() > int.Parse(_configuration["PiezosAlert"]) ||
+                                    calcDiff(measurement.piezo_1).Average() > int.Parse(_configuration["PiezosAlert"]))
+                                {
+                                    _mailService.SendAlertMail("piezo_0", string.Empty);
+                                }
                                 if (measurement != null)
                                 {
                                     if (measurementsJson == null)
@@ -89,19 +106,22 @@ namespace IotGui.Data
             }).Start();
         }
 
-        private bool isValidJson(string s)
+        private List<int> calcDiff(List<int> data)
         {
-            try
+            List<int> diff1 = new List<int>();
+            List<int> diff2 = new List<int>();
+
+            for (int i = 1; i < data.Count; i++)
             {
-                s = s.TrimEnd(',');
-                JToken.Parse(s);
-                return true;
+                diff1.Add(data[i] - data[i - 1]);
             }
-            catch (JsonReaderException ex)
+
+            for (int i = 1; i < diff1.Count; i++)
             {
-                Debug.WriteLine(ex.Message);
-                return false;
+                diff2.Add(diff1[i] - diff1[i - 1]);
             }
+
+            return diff2;
         }
     }
 }

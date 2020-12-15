@@ -21,6 +21,7 @@ namespace IotGui
         {
             services.AddControllersWithViews().AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
             services.AddSingleton<IDataService, DataService>();
+            services.AddSingleton<IMailService, MailService>();
             services.AddHostedService<TcpService>();
         }
 

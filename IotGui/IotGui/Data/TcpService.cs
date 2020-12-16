@@ -1,13 +1,14 @@
 ﻿using IotGui.Models;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Net.TcpServer;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,92 +18,110 @@ namespace IotGui.Data
     public class TcpService : BackgroundService
     {
         private IDataService _dataService;
+        private readonly IConfiguration _configuration;
+        private readonly IMailService _mailService;
 
-        public TcpService(IDataService dataService)
+        //private TcpListener serverSocket;
+
+        public TcpService(IDataService dataService, IConfiguration configuration, IMailService mailService)
         {
             _dataService = dataService;
+            _configuration = configuration;
+            _mailService = mailService;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            IPAddress iPAddress = IPAddress.Parse("0.0.0.0");
-            TcpListener listener = new TcpListener(iPAddress, 3333);
-            listener.Start();
-            try
+            new Thread(() =>
             {
-                while (true)
+                Thread.CurrentThread.IsBackground = true;
+                TcpServer tcpServer = new TcpServer(IPAddress.Parse(_configuration["Host"]), int.Parse(_configuration["Port"]));
+                while (true && !stoppingToken.IsCancellationRequested)
                 {
-                    using (TcpClient client = await listener.AcceptTcpClientAsync())
+                    string jsonString = string.Empty;
+                    tcpServer.Start(_ =>
                     {
-                        if (client.Connected)
+
+                        _.OnAccept = client =>
                         {
-                            using (NetworkStream stream = client.GetStream())
+                            Debug.WriteLine($"OnAccept: {client}");
+                        };
+                        _.OnReceive = (client, data) =>
+                        {
+                            jsonString += Encoding.UTF8.GetString(data);
+                            Debug.WriteLine($"OnReceive: {client} {Encoding.UTF8.GetString(data)}");
+                        };
+                        _.OnError = (client, ex) =>
+                        {
+                            Debug.WriteLine($"OnError: {client} {ex.Message}");
+                        };
+                        _.OnClose = (client, isCloseByClient) =>
+                        {
+                            Debug.WriteLine($"Result: {jsonString}");
+                            try
                             {
-                                Debug.Print(
-                                    $"Typ client started sucesfully on {iPAddress}\nconnection established: {client.Connected} | {client.Available}");
-                                //while (!stoppingToken.IsCancellationRequested)
-                                //{
-                                //if (listener.Pending()) break;
-                                int byteRead = 0;
-                                byte[] buffer = new byte[20000];
-                                string jsonString = string.Empty;
-                                while ((byteRead = stream.Read(buffer, 0, buffer.Length)) != 0)
+                                var measurement = JsonConvert.DeserializeObject<MeasurementViewModel>(jsonString);
+                                jsonString = string.Empty;
+                                var measurementsJson = _dataService.GetData();
+                                if(measurement.water_0 > int.Parse(_configuration["HumidityAlert"]))
                                 {
-                                    jsonString += Encoding.ASCII.GetString(buffer, 0, byteRead);
-                                }
-
-                                //Memory<byte> memory = new Memory<byte>(new byte[1000000]);
-                                //int bytesRead = await stream.ReadAsync(memory, stoppingToken);
-                                ////Debug.Print($"Read bytes {bytesRead}");
-                                //var jsonString = Encoding.UTF8.GetString(memory.ToArray());
-                                if (isValidJson(jsonString))
-                                {
-                                    var measurement = JsonConvert.DeserializeObject<MeasurementViewModel>(jsonString);
-                                    var measurementsJson = _dataService.GetData();
-                                    if (measurement != null)
+                                    if(measurementsJson.TakeLast(3).All(mes => mes.water_0 > int.Parse(_configuration["HumidityAlert"])))
                                     {
-                                        if (measurementsJson == null)
-                                        {
-                                            measurementsJson = new List<MeasurementViewModel>();
-                                        }
-
-                                        measurementsJson.Add(measurement);
-                                        using (StreamWriter file = File.CreateText(@"MeasurementsData/example.json"))
-                                        {
-                                            measurement.date = DateTime.Now.ToShortDateString();
-                                            measurement.time = DateTime.Now.ToLongTimeString();
-                                            measurement.timestamp = DateTime.Now.ToLongDateString();
-                                            JsonSerializer serializer = new JsonSerializer();
-                                            serializer.Serialize(file, measurementsJson);
-                                        }
+                                        _mailService.SendAlertMail("water_0", measurement.water_0.ToString());
+                                    }
+                                }
+                                if (calcDiff(measurement.piezo_0).Average() > int.Parse(_configuration["PiezosAlert"]) ||
+                                    calcDiff(measurement.piezo_1).Average() > int.Parse(_configuration["PiezosAlert"]))
+                                {
+                                    _mailService.SendAlertMail("piezo_0", string.Empty);
+                                }
+                                if (measurement != null)
+                                {
+                                    if (measurementsJson == null)
+                                    {
+                                        measurementsJson = new List<MeasurementViewModel>();
+                                    }
+                                    measurementsJson.Add(measurement);
+                                    using (StreamWriter file = File.CreateText(@"MeasurementsData/example.json"))
+                                    {
+                                        measurement.date = DateTime.Now.ToShortDateString();
+                                        measurement.time = DateTime.Now.ToLongTimeString();
+                                        measurement.timestamp = DateTime.Now.ToLongDateString();
+                                        JsonSerializer serializer = new JsonSerializer();
+                                        serializer.Serialize(file, measurementsJson);
                                     }
                                 }
                             }
-                        }
-
-                        client.Close();
-                    }
+                            catch (Exception e)
+                            {
+                                jsonString = string.Empty;
+                                Console.WriteLine("Exception: {0}", e);
+                            }
+                            Debug.WriteLine($"OnClose: {client} {(isCloseByClient ? "by client" : "by server")}");
+                        };
+                    });
                 }
-            }
-            catch (Exception e)
-            {
-                Debug.Fail($"Failed to start TCP listener: {e.Message}");
-            }
+                Console.ReadKey();
+                tcpServer.Stop();
+            }).Start();
         }
 
-        private bool isValidJson(string s)
+        private List<int> calcDiff(List<int> data)
         {
-            try
+            List<int> diff1 = new List<int>();
+            List<int> diff2 = new List<int>();
+
+            for (int i = 1; i < data.Count; i++)
             {
-                s = s.TrimEnd(',');
-                JToken.Parse(s);
-                return true;
+                diff1.Add(data[i] - data[i - 1]);
             }
-            catch (JsonReaderException ex)
+
+            for (int i = 1; i < diff1.Count; i++)
             {
-                Debug.WriteLine(ex.Message);
-                return false;
+                diff2.Add(diff1[i] - diff1[i - 1]);
             }
+
+            return diff2;
         }
     }
 }

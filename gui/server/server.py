@@ -1,7 +1,7 @@
 import socket
 while True:
 	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	server.bind(('192.168.133.79', 3333))
+	server.bind(('192.168.137.1', 3333))
 	server.listen(3)
 	print ("[*] Started listening ")
 	client,addr= server.accept()

@@ -11,6 +11,7 @@
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
 #include "tcp_client.c"
+#include "soc/rtc_cntl_reg.h"
 
 #define DEFAULT_VREF	1100		//Use adc2_vref_to_gpio() to obtain a better estimate
 #define NO_OF_SAMPLES   64		  //Multisampling
@@ -97,6 +98,8 @@ void app_main(void)
 {
 	//Check if Two Point or Vref are burned into eFuse
 	check_efuse();
+	
+	WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); //disable brownout detector 
 
 	//Configure ADC
 	adc1_config_width(width);

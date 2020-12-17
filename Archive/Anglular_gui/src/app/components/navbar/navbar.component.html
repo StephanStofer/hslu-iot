@@ -1,0 +1,30 @@
+<div class="d-flex" id="wrapper">
+    <!-- Sidebar -->
+    
+    <div class="bg-light border-right" id="sidebar-wrapper">
+      
+    
+      <div class="sidebar-heading">IOT-Group02</div>
+      <div class="list-group list-group-flush">
+        <a routerLink='results' class="list-group-item list-group-item-action bg-light">Results</a>
+        <a routerLink='history' class="list-group-item list-group-item-action bg-light">History</a>
+      </div>
+    </div>
+    <!-- /#sidebar-wrapper -->
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+      <div container>
+        <nav class="navbar navbar-light navbar-expand-md">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="menu-toggle">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+        </nav>
+      </div>
+
+    <router-outlet></router-outlet>
+    </div>
+    
+    <!-- /#page-content-wrapper -->
+  </div>
+  
+  <!-- /#wrapper -->

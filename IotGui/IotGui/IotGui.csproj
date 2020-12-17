@@ -9,4 +9,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="DevExtreme.AspNet.Core" Version="20.2.4" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="MeasurementsData\" />
+  </ItemGroup>
 </Project>

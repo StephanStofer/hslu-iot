@@ -1,6 +1,5 @@
 //
-// Created by Stephan Stofer on 06.11.20.
-// Updated 2.12.20 inspired by https://github.com/espressif/esp-idf/blob/release/v4.1/examples/peripherals/adc/main/adc1_example_main.c
+// inspired by https://github.com/espressif/esp-idf/blob/release/v4.1/examples/peripherals/adc/main/adc1_example_main.c
 //
 
 #include <stdio.h>

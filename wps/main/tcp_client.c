@@ -1,6 +1,5 @@
 //
-// Created by Stephan Stofer on 06.11.20.
-// Updated 2.12.20 inspired by https://github.com/espressif/esp-idf/blob/master/examples/protocols/sockets/tcp_client/main/tcp_client.c
+// inspired by https://github.com/espressif/esp-idf/blob/master/examples/protocols/sockets/tcp_client/main/tcp_client.c
 //
 
 #include <string.h>
@@ -72,17 +71,14 @@ static void tcp_client_task() {
     ESP_ERROR_CHECK(disconnect_wifi());
     ESP_ERROR_CHECK(esp_event_loop_delete_default());
     ESP_LOGI(TAG, "Disconnect WiFi, delete Event-Loop and Task");
-//    vTaskDelete(NULL);
 }
 
 static void send_data(const char sender[], const char data[]) {
     payload = data;
-//    ESP_LOGI(TAG, "Got data from: %s, sending.. %s", sender, payload);
 
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     ESP_ERROR_CHECK(connect_to_wifi());
     tcp_client_task();
-//    xTaskCreate(tcp_client_task, TAG, 4096, NULL, 5, NULL);
 }

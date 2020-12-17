@@ -61,41 +61,44 @@ namespace IotGui.Data
                             try
                             {
                                 var measurement = JsonConvert.DeserializeObject<MeasurementViewModel>(jsonString);
-                                jsonString = string.Empty;
-                                var measurementsJson = _dataService.GetData();
-                                if(measurement.water_0 > int.Parse(_configuration["HumidityAlert"]))
-                                {
-                                    if(measurementsJson.TakeLast(3).All(mes => mes.water_0 > int.Parse(_configuration["HumidityAlert"])))
-                                    {
-                                        _mailService.SendAlertMail("water_0", measurement.water_0.ToString());
-                                    }
-                                }
-                                if (calcDiff(measurement.piezo_0).Average() > int.Parse(_configuration["PiezosAlert"]) ||
-                                    calcDiff(measurement.piezo_1).Average() > int.Parse(_configuration["PiezosAlert"]))
-                                {
-                                    _mailService.SendAlertMail("piezo_0", string.Empty);
-                                }
                                 if (measurement != null)
                                 {
-                                    if (measurementsJson == null)
+                                    jsonString = string.Empty;
+                                    var measurementsJson = _dataService.GetData();
+                                    if (measurement.water_0 > int.Parse(_configuration["HumidityAlert"]))
                                     {
-                                        measurementsJson = new List<MeasurementViewModel>();
+                                        if (measurementsJson.TakeLast(3).All(mes => mes.water_0 > int.Parse(_configuration["HumidityAlert"])))
+                                        {
+                                            _mailService.SendAlertMail("water_0", measurement.water_0.ToString());
+                                        }
                                     }
-                                    measurementsJson.Add(measurement);
-                                    using (StreamWriter file = File.CreateText(@"MeasurementsData/example.json"))
+                                    if (calcDiff(measurement.piezo_0).Average() > int.Parse(_configuration["PiezosAlert"]) ||
+                                        calcDiff(measurement.piezo_1).Average() > int.Parse(_configuration["PiezosAlert"]))
                                     {
-                                        measurement.date = DateTime.Now.ToShortDateString();
-                                        measurement.time = DateTime.Now.ToLongTimeString();
-                                        measurement.timestamp = DateTime.Now.ToLongDateString();
-                                        JsonSerializer serializer = new JsonSerializer();
-                                        serializer.Serialize(file, measurementsJson);
+                                        _mailService.SendAlertMail("piezo_0", string.Empty);
+                                    }
+                                    if (measurement != null)
+                                    {
+                                        if (measurementsJson == null)
+                                        {
+                                            measurementsJson = new List<MeasurementViewModel>();
+                                        }
+                                        measurementsJson.Add(measurement);
+                                        using (StreamWriter file = File.CreateText(@"MeasurementsData/example.json"))
+                                        {
+                                            measurement.date = DateTime.Now.ToShortDateString();
+                                            measurement.time = DateTime.Now.ToLongTimeString();
+                                            measurement.timestamp = DateTime.Now.ToLongDateString();
+                                            JsonSerializer serializer = new JsonSerializer();
+                                            serializer.Serialize(file, measurementsJson);
+                                        }
                                     }
                                 }
                             }
                             catch (Exception e)
                             {
                                 jsonString = string.Empty;
-                                Console.WriteLine("Exception: {0}", e);
+                                Debug.WriteLine($"Exception: {e.Message}");
                             }
                             Debug.WriteLine($"OnClose: {client} {(isCloseByClient ? "by client" : "by server")}");
                         };

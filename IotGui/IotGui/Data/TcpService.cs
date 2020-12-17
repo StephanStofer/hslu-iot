@@ -21,9 +21,6 @@ namespace IotGui.Data
         private readonly IConfiguration _configuration;
         private readonly IMailService _mailService;
 
-
-        //private TcpListener serverSocket;
-
         public TcpService(IDataService dataService, IConfiguration configuration, IMailService mailService)
         {
             _dataService = dataService;
@@ -70,29 +67,27 @@ namespace IotGui.Data
                                     }
 
                                     if (_dataService.CalcDiff(measurement.piezo_0, "piezo_0").Average() >
-                                        int.Parse(_configuration["PiezosAlert"]) ||
-                                        _dataService.CalcDiff(measurement.piezo_1, "piezo_1").Average() >
                                         int.Parse(_configuration["PiezosAlert"]))
                                     {
                                         _mailService.SendAlertMail("piezo_0", string.Empty);
                                     }
 
-                                    if (measurement != null)
+                                    if (_dataService.CalcDiff(measurement.piezo_1, "piezo_1").Average() >
+                                        int.Parse(_configuration["PiezosAlert"]))
                                     {
-                                        if (measurementsJson == null)
-                                        {
-                                            measurementsJson = new List<MeasurementViewModel>();
-                                        }
+                                        _mailService.SendAlertMail("piezo_1", string.Empty);
+                                    }
 
-                                        measurementsJson.Add(measurement);
-                                        using (StreamWriter file = File.CreateText(@"MeasurementsData/example.json"))
-                                        {
-                                            measurement.date = DateTime.Now.ToShortDateString();
-                                            measurement.time = DateTime.Now.ToLongTimeString();
-                                            measurement.timestamp = DateTime.Now.ToLongDateString();
-                                            JsonSerializer serializer = new JsonSerializer();
-                                            serializer.Serialize(file, measurementsJson);
-                                        }
+                                    measurementsJson ??= new List<MeasurementViewModel>();
+
+                                    measurementsJson.Add(measurement);
+                                    using (StreamWriter file = File.CreateText(@"MeasurementsData/example.json"))
+                                    {
+                                        measurement.date = DateTime.Now.ToShortDateString();
+                                        measurement.time = DateTime.Now.ToLongTimeString();
+                                        measurement.timestamp = DateTime.Now.ToLongDateString();
+                                        JsonSerializer serializer = new JsonSerializer();
+                                        serializer.Serialize(file, measurementsJson);
                                     }
                                 }
                             }

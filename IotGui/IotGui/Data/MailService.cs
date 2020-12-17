@@ -38,7 +38,7 @@ namespace IotGui.Data
                     smtp.Send(message);
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Debug.WriteLine($"Mail sending error: {e.Message}");
             }

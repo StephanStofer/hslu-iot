@@ -1,78 +1,52 @@
 ﻿@using IotGui.Data
 @model List<MeasurementViewModel>
 
-@* @{ *@
-@*     List<int> calcDiff(List<int> data) *@
-@*     { *@
-@*         List<int> diff1 = new List<int>(); *@
-@*         List<int> diff2 = new List<int>(); *@
-@* *@
-@*         for (int i = 1; i < data.Count; i++) *@
-@*         { *@
-@*             diff1.Add(data[i] - data[i - 1]); *@
-@*         } *@
-@* *@
-@*         for (int i = 1; i < diff1.Count; i++) *@
-@*         { *@
-@*             diff2.Add(diff1[i] - diff1[i - 1]); *@
-@*         } *@
-@* *@
-@*         return diff2; *@
-@*     } *@
-@* *@
-@*     PiezosViewModel GetPiezoModel(List<int> data1, List<int> data2) *@
-@*     { *@
-@*         return new PiezosViewModel(calcDiff(data1), calcDiff(data2)); *@
-@*     } *@
-@* } *@
 @{
     IDataService dataService = new DataService();
 }
 
 <div class="text-center">
-    <h1 class="display-3">IoT Monitoring</h1>
-    <div class="container p-3 my-3 border">
-        <h7 class="display-4">Last month</h7>
-        @*Humidity*@
-        @(Html.DevExtreme().Chart()
-            .ID("humidity-week-chart")
-            .Palette(VizPalette.Violet)
-            .CommonSeriesSettings(s => s
-                .ArgumentField("Time")
-                .Type(SeriesType.Line)
-            )
-            .Margin(m => m.Bottom(20))
-            .ArgumentAxis(a => a
-                .ValueMarginsEnabled(false)
-                .DiscreteAxisDivisionMode(DiscreteAxisDivisionMode.CrossLabels)
-                .Grid(g => g.Visible(true))
-            )
-            .ValueAxis(v =>
-            {
-                v.Add()
-                    .Title("Humidity");
-            })
-            .Series(s => {
-                s.Add().ValueField("Humidity").Name("Humidity");
-            })
-            .Legend(l => l
-                .VerticalAlignment(VerticalEdge.Bottom)
-                .HorizontalAlignment(HorizontalAlignment.Center)
-                .ItemTextPosition(Position.Bottom)
-            )
-            .Title(t => t
-                .Text("Humidity")
-                .Subtitle(s => s.Text("Sensor Data"))
-            )
-            .Export(e => e.Enabled(true))
-            .Tooltip(t => t.Enabled(true))
-            .DataSource(Model.Select(row => new
-            {
-                Time = row.time,
-                Humidity = row.water_0
-            }))
+<h1 class="display-3">IoT Monitoring</h1>
+<div class="container p-3 my-3 border">
+    <h7 class="display-4">Last month</h7>
+    @*Humidity*@
+    @(Html.DevExtreme().Chart()
+        .ID("humidity-week-chart")
+        .Palette(VizPalette.Violet)
+        .CommonSeriesSettings(s => s
+            .ArgumentField("Time")
+            .Type(SeriesType.Line)
         )
-        @(Html.DevExtreme().Chart()
+        .Margin(m => m.Bottom(20))
+        .ArgumentAxis(a => a
+            .ValueMarginsEnabled(false)
+            .DiscreteAxisDivisionMode(DiscreteAxisDivisionMode.CrossLabels)
+            .Grid(g => g.Visible(true))
+        )
+        .ValueAxis(v =>
+        {
+            v.Add()
+                .Title("Humidity");
+        })
+        .Series(s => { s.Add().ValueField("Humidity").Name("Humidity"); })
+        .Legend(l => l
+            .VerticalAlignment(VerticalEdge.Bottom)
+            .HorizontalAlignment(HorizontalAlignment.Center)
+            .ItemTextPosition(Position.Bottom)
+        )
+        .Title(t => t
+            .Text("Humidity")
+            .Subtitle(s => s.Text("Sensor Data"))
+        )
+        .Export(e => e.Enabled(true))
+        .Tooltip(t => t.Enabled(true))
+        .DataSource(Model.Select(row => new
+        {
+            Time = row.time,
+            Humidity = row.water_0
+        }))
+        )
+    @(Html.DevExtreme().Chart()
         .ID("piezos-week-chart")
         .Palette(VizPalette.Violet)
         .CommonSeriesSettings(s => s
@@ -90,7 +64,8 @@
             v.Add()
                 .Title("Sound intensity");
         })
-        .Series(s => {
+        .Series(s =>
+        {
             s.Add().ValueField("Piezo1").Name("Piezo1");
             s.Add().ValueField("Piezo2").Name("Piezo2");
         })
@@ -111,49 +86,47 @@
             Piezo1 = dataService.CalcDiff(row.piezo_0, "piezo_0").Average(),
             Piezo2 = dataService.CalcDiff(row.piezo_1, "piezo_1").Average()
         }))
-    )
-    </div>
-    <div class="container p-3 my-3 border">
-        <h7 class="display-4">Last 24 hours</h7>
-        @(Html.DevExtreme().Chart()
-            .ID("humidity-24h-chart")
-            .Palette(VizPalette.Violet)
-            .CommonSeriesSettings(s => s
-                .ArgumentField("Time")
-                .Type(SeriesType.Line)
-            )
-            .Margin(m => m.Bottom(20))
-            .ArgumentAxis(a => a
-                .ValueMarginsEnabled(false)
-                .DiscreteAxisDivisionMode(DiscreteAxisDivisionMode.CrossLabels)
-                .Grid(g => g.Visible(true))
-            )
-            .ValueAxis(v =>
-            {
-                v.Add()
-                    .Title("Humidity");
-            })
-            .Series(s => {
-                s.Add().ValueField("Humidity").Name("Humidity");
-            })
-            .Legend(l => l
-                .VerticalAlignment(VerticalEdge.Bottom)
-                .HorizontalAlignment(HorizontalAlignment.Center)
-                .ItemTextPosition(Position.Bottom)
-            )
-            .Title(t => t
-                .Text("Humidity")
-                .Subtitle(s => s.Text("Sensor Data"))
-            )
-            .Export(e => e.Enabled(true))
-            .Tooltip(t => t.Enabled(true))
-            .DataSource(Model.TakeLast(8640).Select(row => new
-            {
-                Time = row.time,
-                Humidity = row.water_0
-            }))
         )
-        @(Html.DevExtreme().Chart()
+</div>
+<div class="container p-3 my-3 border">
+    <h7 class="display-4">Last 24 hours</h7>
+    @(Html.DevExtreme().Chart()
+        .ID("humidity-24h-chart")
+        .Palette(VizPalette.Violet)
+        .CommonSeriesSettings(s => s
+            .ArgumentField("Time")
+            .Type(SeriesType.Line)
+        )
+        .Margin(m => m.Bottom(20))
+        .ArgumentAxis(a => a
+            .ValueMarginsEnabled(false)
+            .DiscreteAxisDivisionMode(DiscreteAxisDivisionMode.CrossLabels)
+            .Grid(g => g.Visible(true))
+        )
+        .ValueAxis(v =>
+        {
+            v.Add()
+                .Title("Humidity");
+        })
+        .Series(s => { s.Add().ValueField("Humidity").Name("Humidity"); })
+        .Legend(l => l
+            .VerticalAlignment(VerticalEdge.Bottom)
+            .HorizontalAlignment(HorizontalAlignment.Center)
+            .ItemTextPosition(Position.Bottom)
+        )
+        .Title(t => t
+            .Text("Humidity")
+            .Subtitle(s => s.Text("Sensor Data"))
+        )
+        .Export(e => e.Enabled(true))
+        .Tooltip(t => t.Enabled(true))
+        .DataSource(Model.TakeLast(8640).Select(row => new
+        {
+            Time = row.time,
+            Humidity = row.water_0
+        }))
+        )
+    @(Html.DevExtreme().Chart()
         .ID("piezos-24h-chart")
         .Palette(VizPalette.Violet)
         .CommonSeriesSettings(s => s
@@ -171,7 +144,8 @@
             v.Add()
                 .Title("Sound intensity");
         })
-        .Series(s => {
+        .Series(s =>
+        {
             s.Add().ValueField("Piezo1").Name("Piezo1");
             s.Add().ValueField("Piezo2").Name("Piezo2");
         })
@@ -192,79 +166,74 @@
             Piezo1 = dataService.CalcDiff(row.piezo_0, "piezo_0").Average(),
             Piezo2 = dataService.CalcDiff(row.piezo_1, "piezo_1").Average()
         }))
-    )
-    </div>
-    <div class="container p-3 my-3 border">
-        <h7 class="display-4">Latest piezos measurements</h7>
-        @(Html.DevExtreme().Chart()
-                    .ID("piezo1-lastMeasure-chart")
-                    .Palette(VizPalette.Violet)
-                    .CommonSeriesSettings(s => s
-                        .ArgumentField("Index")
-                        .Type(SeriesType.Line)
-                    )
-                    .Margin(m => m.Bottom(20))
-                    .ArgumentAxis(a => a
-                        .ValueMarginsEnabled(false)
-                        .DiscreteAxisDivisionMode(DiscreteAxisDivisionMode.CrossLabels)
-                        .Grid(g => g.Visible(false))
-                    )
-                    .ValueAxis(v =>
-                     {
-                         v.Add()
-                             .Title("Sound intensity");
-                     })
-                    .Series(s => {
-                        s.Add().ValueField("Piezo1").Name("Piezo1");
-
-                    })
-                    .Legend(l => l
-                        .VerticalAlignment(VerticalEdge.Bottom)
-                        .HorizontalAlignment(HorizontalAlignment.Center)
-                        .ItemTextPosition(Position.Bottom)
-                    )
-                    .Title(t => t
-                        .Text("Piezo 1 last measurement")
-                        .Subtitle(s => s.Text("Sensor Data"))
-                    )
-                    .Export(e => e.Enabled(true))
-                    .Tooltip(t => t.Enabled(true))
-                    .DataSource(dataService.CalcDiff(Model.Last().piezo_0, "piezo_0").Select(res => new { Index = Guid.NewGuid(), Piezo1 = res}))
-    )
-        @(Html.DevExtreme().Chart()
-                    .ID("piezo2-lastMeasure-chart")
-                    .Palette(VizPalette.Violet)
-                    .CommonSeriesSettings(s => s
-                        .ArgumentField("Index")
-                        .Type(SeriesType.Line)
-                    )
-                    .Margin(m => m.Bottom(20))
-                    .ArgumentAxis(a => a
-                        .ValueMarginsEnabled(false)
-                        .DiscreteAxisDivisionMode(DiscreteAxisDivisionMode.CrossLabels)
-                        .Grid(g => g.Visible(false))
-                    )
-                    .ValueAxis(v =>
-                    {
-                        v.Add()
-                            .Title("Sound intensity");
-                    })
-                    .Series(s => {
-                        s.Add().ValueField("Piezo2").Name("Piezo2");
-                    })
-                    .Legend(l => l
-                        .VerticalAlignment(VerticalEdge.Bottom)
-                        .HorizontalAlignment(HorizontalAlignment.Center)
-                        .ItemTextPosition(Position.Bottom)
-                    )
-                    .Title(t => t
-                        .Text("Piezo 2 last measurement")
-                        .Subtitle(s => s.Text("Sensor Data"))
-                    )
-                    .Export(e => e.Enabled(true))
-                    .Tooltip(t => t.Enabled(true))
-                    .DataSource(dataService.CalcDiff(Model.Last().piezo_1, "piezo_1").Select(res => new { Index = Guid.NewGuid(), Piezo2 = res}))
-                ))
-        </div>
-        <p>HSLU IoT project with ASP.NET Core.</p>
-    </div>
+        )
+</div>
+<div class="container p-3 my-3 border">
+    <h7 class="display-4">Latest piezos measurements</h7>
+    @(Html.DevExtreme().Chart()
+        .ID("piezo1-lastMeasure-chart")
+        .Palette(VizPalette.Violet)
+        .CommonSeriesSettings(s => s
+            .ArgumentField("Index")
+            .Type(SeriesType.Line)
+        )
+        .Margin(m => m.Bottom(20))
+        .ArgumentAxis(a => a
+            .ValueMarginsEnabled(false)
+            .DiscreteAxisDivisionMode(DiscreteAxisDivisionMode.CrossLabels)
+            .Grid(g => g.Visible(false))
+        )
+        .ValueAxis(v =>
+        {
+            v.Add()
+                .Title("Sound intensity");
+        })
+        .Series(s => { s.Add().ValueField("Piezo1").Name("Piezo1"); })
+        .Legend(l => l
+            .VerticalAlignment(VerticalEdge.Bottom)
+            .HorizontalAlignment(HorizontalAlignment.Center)
+            .ItemTextPosition(Position.Bottom)
+        )
+        .Title(t => t
+            .Text("Piezo 1 last measurement")
+            .Subtitle(s => s.Text("Sensor Data"))
+        )
+        .Export(e => e.Enabled(true))
+        .Tooltip(t => t.Enabled(true))
+        .DataSource(dataService.CalcDiff(Model.Last().piezo_0, "piezo_0").Select(res => new {Index = Guid.NewGuid(), Piezo1 = res}))
+        )
+    @(Html.DevExtreme().Chart()
+        .ID("piezo2-lastMeasure-chart")
+        .Palette(VizPalette.Violet)
+        .CommonSeriesSettings(s => s
+            .ArgumentField("Index")
+            .Type(SeriesType.Line)
+        )
+        .Margin(m => m.Bottom(20))
+        .ArgumentAxis(a => a
+            .ValueMarginsEnabled(false)
+            .DiscreteAxisDivisionMode(DiscreteAxisDivisionMode.CrossLabels)
+            .Grid(g => g.Visible(false))
+        )
+        .ValueAxis(v =>
+        {
+            v.Add()
+                .Title("Sound intensity");
+        })
+        .Series(s => { s.Add().ValueField("Piezo2").Name("Piezo2"); })
+        .Legend(l => l
+            .VerticalAlignment(VerticalEdge.Bottom)
+            .HorizontalAlignment(HorizontalAlignment.Center)
+            .ItemTextPosition(Position.Bottom)
+        )
+        .Title(t => t
+            .Text("Piezo 2 last measurement")
+            .Subtitle(s => s.Text("Sensor Data"))
+        )
+        .Export(e => e.Enabled(true))
+        .Tooltip(t => t.Enabled(true))
+        .DataSource(dataService.CalcDiff(Model.Last().piezo_1, "piezo_1").Select(res => new {Index = Guid.NewGuid(), Piezo2 = res}))
+        )
+</div>
+<p>HSLU IoT project group02 - HS2020</p>
+</div>

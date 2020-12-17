@@ -11,9 +11,12 @@
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
 #include "tcp_client.c"
+#include "soc/rtc_cntl_reg.h"
 
-#define DEFAULT_VREF	1100		//Use adc2_vref_to_gpio() to obtain a better estimate
-#define NO_OF_SAMPLES   64		  //Multisampling
+#define DEFAULT_VREF   1100    //Use adc2_vref_to_gpio() to obtain a better estimate
+#define NO_OF_SAMPLES  64      //Multisampling
+#define uS_TO_S_FACTOR 1000000 //Conversion factor for micro seconds to seconds
+#define TIME_TO_SLEEP  10      //Time ESP32 will go to sleep (in seconds)
 
 static esp_adc_cal_characteristics_t *adc_chars;
 #if CONFIG_IDF_TARGET_ESP32
@@ -97,6 +100,8 @@ void app_main(void)
 {
 	//Check if Two Point or Vref are burned into eFuse
 	check_efuse();
+	
+	WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); //disable brownout detector 
 
 	//Configure ADC
 	adc1_config_width(width);
@@ -138,7 +143,9 @@ void app_main(void)
 		memcpy(data_to_send+pos, "]}\0", 3); pos += 3;
 		
 		send_data(APPTAG, data_to_send);
-		vTaskDelay(pdMS_TO_TICKS(30000));
+		
+		esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
+		esp_deep_sleep_start();
 	}
 	free(data_to_send);
 }

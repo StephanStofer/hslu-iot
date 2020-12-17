@@ -1,28 +1,32 @@
-﻿@model List<MeasurementViewModel>
+﻿@using IotGui.Data
+@model List<MeasurementViewModel>
 
+@* @{ *@
+@*     List<int> calcDiff(List<int> data) *@
+@*     { *@
+@*         List<int> diff1 = new List<int>(); *@
+@*         List<int> diff2 = new List<int>(); *@
+@* *@
+@*         for (int i = 1; i < data.Count; i++) *@
+@*         { *@
+@*             diff1.Add(data[i] - data[i - 1]); *@
+@*         } *@
+@* *@
+@*         for (int i = 1; i < diff1.Count; i++) *@
+@*         { *@
+@*             diff2.Add(diff1[i] - diff1[i - 1]); *@
+@*         } *@
+@* *@
+@*         return diff2; *@
+@*     } *@
+@* *@
+@*     PiezosViewModel GetPiezoModel(List<int> data1, List<int> data2) *@
+@*     { *@
+@*         return new PiezosViewModel(calcDiff(data1), calcDiff(data2)); *@
+@*     } *@
+@* } *@
 @{
-    List<int> calcDiff(List<int> data)
-    {
-        List<int> diff1 = new List<int>();
-        List<int> diff2 = new List<int>();
-
-        for (int i = 1; i < data.Count; i++)
-        {
-            diff1.Add(data[i] - data[i - 1]);
-        }
-
-        for (int i = 1; i < diff1.Count; i++)
-        {
-            diff2.Add(diff1[i] - diff1[i - 1]);
-        }
-
-        return diff2;
-    }
-
-    PiezosViewModel GetPiezoModel(List<int> data1, List<int> data2)
-    {
-        return new PiezosViewModel(calcDiff(data1), calcDiff(data2));
-    }
+    IDataService dataService = new DataService();
 }
 
 <div class="text-center">
@@ -104,8 +108,8 @@
         .DataSource(Model.TakeLast(288).Select(row => new
         {
             Time = row.time,
-            Piezo1 = calcDiff(row.piezo_0).Average(),
-            Piezo2 = calcDiff(row.piezo_1).Average()
+            Piezo1 = dataService.CalcDiff(row.piezo_0, "piezo_0").Average(),
+            Piezo2 = dataService.CalcDiff(row.piezo_1, "piezo_1").Average()
         }))
     )
     </div>
@@ -185,8 +189,8 @@
         .DataSource(Model.Select(row => new
         {
             Time = row.time,
-            Piezo1 = calcDiff(row.piezo_0).Average(),
-            Piezo2 = calcDiff(row.piezo_1).Average()
+            Piezo1 = dataService.CalcDiff(row.piezo_0, "piezo_0").Average(),
+            Piezo2 = dataService.CalcDiff(row.piezo_1, "piezo_1").Average()
         }))
     )
     </div>
@@ -225,7 +229,7 @@
                     )
                     .Export(e => e.Enabled(true))
                     .Tooltip(t => t.Enabled(true))
-                    .DataSource(calcDiff(Model.Last().piezo_0).Select(res => new { Index = Guid.NewGuid(), Piezo1 = res}))
+                    .DataSource(dataService.CalcDiff(Model.Last().piezo_0, "piezo_0").Select(res => new { Index = Guid.NewGuid(), Piezo1 = res}))
     )
         @(Html.DevExtreme().Chart()
                     .ID("piezo2-lastMeasure-chart")
@@ -259,7 +263,7 @@
                     )
                     .Export(e => e.Enabled(true))
                     .Tooltip(t => t.Enabled(true))
-                    .DataSource(calcDiff(Model.Last().piezo_1).Select(res => new { Index = Guid.NewGuid(), Piezo2 = res}))
+                    .DataSource(dataService.CalcDiff(Model.Last().piezo_1, "piezo_1").Select(res => new { Index = Guid.NewGuid(), Piezo2 = res}))
                 ))
         </div>
         <p>HSLU IoT project with ASP.NET Core.</p>

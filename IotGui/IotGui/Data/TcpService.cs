@@ -20,7 +20,6 @@ namespace IotGui.Data
         private IDataService _dataService;
         private readonly IConfiguration _configuration;
         private readonly IMailService _mailService;
-        private Dictionary<string, int> dict = new Dictionary<string, int> {{"piezo_0", 0}, {"piezo_1", 0}};
 
 
         //private TcpListener serverSocket;
@@ -70,9 +69,9 @@ namespace IotGui.Data
                                         }
                                     }
 
-                                    if (calcDiff(measurement.piezo_0, "piezo_0").Average() >
+                                    if (_dataService.CalcDiff(measurement.piezo_0, "piezo_0").Average() >
                                         int.Parse(_configuration["PiezosAlert"]) ||
-                                        calcDiff(measurement.piezo_1, "piezo_1").Average() >
+                                        _dataService.CalcDiff(measurement.piezo_1, "piezo_1").Average() >
                                         int.Parse(_configuration["PiezosAlert"]))
                                     {
                                         _mailService.SendAlertMail("piezo_0", string.Empty);
@@ -111,35 +110,6 @@ namespace IotGui.Data
                 Console.ReadKey();
                 tcpServer.Stop();
             }).Start();
-        }
-
-        private List<int> calcDiff(List<int> data, string dictIndex)
-        {
-            List<int> diff1 = new List<int>();
-            List<int> diff2 = new List<int>();
-            
-            for (int i = 1; i < data.Count; i++)
-            {
-                if (data[i] + dict[dictIndex] > 4095)
-                {
-                    dict[dictIndex] -= 1;
-                }
-                else
-                {
-                    dict[dictIndex] += 1;
-                }
-
-                data[i] += dict[dictIndex] - 4095;
-
-                diff1.Add(data[i] - data[i - 1]);
-            }
-
-            for (int i = 1; i < diff1.Count; i++)
-            {
-                diff2.Add(diff1[i] - diff1[i - 1]);
-            }
-
-            return diff2;
         }
     }
 }

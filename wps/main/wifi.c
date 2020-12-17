@@ -1,6 +1,5 @@
 //
-// Created by Stephan Stofer on 06.11.20.
-// Updated 1.12.20 inspired by https://github.com/espressif/esp-idf/blob/release/v4.1/examples/common_components/protocol_examples_common/connect.c
+// inspired by https://github.com/espressif/esp-idf/blob/release/v4.1/examples/common_components/protocol_examples_common/connect.c
 //
 
 #include <string.h>

@@ -1,6 +1,5 @@
 //
-// Created by Stephan Stofer on 06.11.20.
-// Updated 2.12.20 inspired by https://github.com/espressif/esp-idf/blob/master/examples/protocols/sockets/tcp_client/main/tcp_client.c
+// inspired by https://github.com/espressif/esp-idf/blob/master/examples/protocols/sockets/tcp_client/main/tcp_client.c
 //
 
 #include <string.h>

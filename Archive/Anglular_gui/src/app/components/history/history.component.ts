@@ -28,14 +28,6 @@ export class HistoryComponent implements OnInit/**, AfterViewInit*/ {
        
     }
   
-  //ngAfterViewInit() {
-  //    this.mdbTablePagination.setMaxVisibleItemsNumberTo(5);
-  
-  //    this.mdbTablePagination.calculateFirstItemIndex();
-  //    this.mdbTablePagination.calculateLastItemIndex();
-  //    this.cdRef.detectChanges();
-  //  }
-
     log() {
       return this.logger.log(this.data$);
     }

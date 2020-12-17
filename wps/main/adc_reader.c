@@ -15,7 +15,7 @@
 #define DEFAULT_VREF   1100    //Use adc2_vref_to_gpio() to obtain a better estimate
 #define NO_OF_SAMPLES  64      //Multisampling
 #define uS_TO_S_FACTOR 1000000 //Conversion factor for micro seconds to seconds
-#define TIME_TO_SLEEP  10      //Time ESP32 will go to sleep (in seconds)
+#define TIME_TO_SLEEP  300     //Time ESP32 will go to sleep (in seconds)
 
 static esp_adc_cal_characteristics_t *adc_chars;
 #if CONFIG_IDF_TARGET_ESP32
